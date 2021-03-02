@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# install docker
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+apt-get update
+apt-get install -y docker-ce
+
+# install awscli
+apt-get install -y awscli
+
+# run prometheus
+mkdir -p /home/ubuntu/prometheus/alerts
+echo "${prometheus_config}" > /home/ubuntu/prometheus/prometheus.yml
+aws s3 cp s3://${s3_bucket}/${app_alert_rules_key} /home/ubuntu/prometheus/alerts/app_rules.yml
+aws s3 cp s3://${s3_bucket}/${server_alert_rules_key} /home/ubuntu/prometheus/alerts/server_rules.yml
+docker run --net=host -v /home/ubuntu/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml \
+-v /home/ubuntu/prometheus/alerts:/etc/prometheus/alerts --name=prometheus -d prom/prometheus
+
+# run grafana
+mkdir -p /home/ubuntu/grafana/provisioning/datasources
+mkdir -p /home/ubuntu/grafana/provisioning/dashboards/linknode
+echo "${garfana_datasources_config}" > /home/ubuntu/grafana/provisioning/datasources/default.yaml
+echo "${garfana_dashboards_config}" > /home/ubuntu/grafana/provisioning/dashboards/default.yaml
+# download dashboard config from s3
+aws s3 cp s3://${s3_bucket}/${dashboard_app_config_key} /home/ubuntu/grafana/provisioning/dashboards/linknode/app.json
+aws s3 cp s3://${s3_bucket}/${dashboard_server_config_key} /home/ubuntu/grafana/provisioning/dashboards/linknode/server.json
+docker run --name=grafana --net=host -v /home/ubuntu/grafana/provisioning:/etc/grafana/provisioning -e "GF_LOG_MODE=console file" -d grafana/grafana
+
+# run telegram-bot
+mkdir -p /home/ubuntu/telegram-bot
+aws s3 cp s3://${s3_bucket}/${telegram_bot_template_key} /home/ubuntu/telegram-bot/template.tmpl
+echo "${telegram_bot_config}" > /home/ubuntu/telegram-bot/config.yaml
+docker run --name=telegram-bot --net=host -w /telegram-bot -v /home/ubuntu/telegram-bot/:/telegram-bot/ -d ${telegram_bot_image}
+
+# run alertmanager
+mkdir -p /home/ubuntu/alertmanager/
+echo "${alertmanager_config}" > /home/ubuntu/alertmanager/alertmanager.yml
+docker run --name alertmanager --net=host -v /home/ubuntu/alertmanager:/home/ubuntu/alertmanager \
+-d quay.io/prometheus/alertmanager --config.file=/home/ubuntu/alertmanager/alertmanager.yml

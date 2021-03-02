@@ -1,0 +1,10 @@
+apiVersion: 1
+
+providers:
+  - name: 'linknode monitor'
+    type: file
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards
+      foldersFromFilesStructure: true

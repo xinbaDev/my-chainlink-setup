@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# install docker
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+apt-get update
+apt-get install -y docker-ce
+
+# run chainlink
+mkdir /home/ubuntu/.chainlink
+cat > /home/ubuntu/.chainlink/.env <<- EOM
+ROOT=/chainlink
+LOG_LEVEL=debug
+ETH_CHAIN_ID=${eth_chain_id}
+MIN_OUTGOING_CONFIRMATIONS=${min_outgoing_confirmations}
+LINK_CONTRACT_ADDRESS=${link_contract_address}
+CHAINLINK_TLS_PORT=0
+SECURE_COOKIES=false
+GAS_UPDATER_ENABLED=true
+ALLOW_ORIGINS=*
+ETH_URL=${eth_url}
+DATABASE_URL=postgresql://${db_username}:${db_passwd}@${db_endpoint}:5432/chainlinkdb?sslmode=disable
+DATABASE_TIMEOUT=0
+EOM
+
+mkdir -p /home/ubuntu/.chainlink
+echo -e "${admin_email}\n${admin_passwd}" > /home/ubuntu/.chainlink/.api
+echo ${wallet_passwd} > /home/ubuntu/.chainlink/.password
+docker pull smartcontract/chainlink:latest
+echo "docker run --net=host -v /home/ubuntu/.chainlink:/chainlink -d --env-file=/home/ubuntu/.chainlink/.env --name chainlink-node smartcontract/chainlink:latest local n -p /chainlink/.password -a /chainlink/.api" > /home/ubuntu/start.sh
+chmod +x /home/ubuntu/start.sh
+/home/ubuntu/start.sh
+
+# install node-exporter
+wget https://github.com/prometheus/node_exporter/releases/download/v1.1.1/node_exporter-1.1.1.linux-amd64.tar.gz
+tar xvfz node_exporter-1.1.1.linux-amd64.tar.gz
+cd node_exporter-1.1.1.linux-amd64
+./node_exporter &

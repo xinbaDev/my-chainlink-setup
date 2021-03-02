@@ -1,0 +1,18 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  repeat_interval: 30s
+  receiver: webhook
+
+inhibit_rules:
+- source_match:
+    severity: 'critical'
+  target_match:
+    severity: 'warning'
+  equal: ['alertname']
+
+receivers:
+  - name: 'webhook'
+    webhook_configs:
+      - url: 'http://127.0.0.1:9087/alert/${telegram_chat_id}'

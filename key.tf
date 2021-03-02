@@ -1,0 +1,4 @@
+resource "aws_key_pair" "chainlink" {
+  key_name   = "chainlink"
+  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCoWt5Fw0tGcy7EseqI3R+sidnaK+4C7elWrOCQuKNaVd1TkLzyGHgDp3ddZ3IW/Kc4XLPRXQNwRwyONq4LB2y8mjtcu6Ob3Gp1dyRoj4uV0sA6RykLLQmQmg8IO/VspejFjTY027x+yAZX4xnk+FmJlBx7cDCj32tif1gTncZJbH68LsszZHLIORhbDI4KUMPsI/wyBAoHHmgjg4d5BWNWoaQDU+Sp3eHblWvk+ihKcZ4uNn155VCYWZo9GoW7fkwT5xU5wJ03gxFejXjDKql8IIrqFdMN58Wqf8Yod0Hhy4qQTMJJS7ouKyhkxUB2IR/JHkHn3xs8ifGYWwyIe+Al ethnode"
+}

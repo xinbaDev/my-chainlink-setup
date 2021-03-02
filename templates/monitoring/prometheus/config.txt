@@ -1,0 +1,20 @@
+global:
+  scrape_interval:     3s
+  evaluation_interval: 3s
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+      - 127.0.0.1:9093
+rule_files:
+  - "/etc/prometheus/alerts/app_rules.yml"
+  - "/etc/prometheus/alerts/server_rules.yml"
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+    - targets: [
+        ${chainlink_node_private_ip_1}:${chainlink_node_port},
+        ${chainlink_node_private_ip_2}:${chainlink_node_port},
+        ${chainlink_node_private_ip_1}:${node_exporter_port},
+        ${chainlink_node_private_ip_2}:${node_exporter_port}
+      ]

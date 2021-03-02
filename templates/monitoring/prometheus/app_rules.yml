@@ -1,0 +1,27 @@
+groups:
+- name: app
+  rules:
+  - alert: low_eth_balance
+    expr: eth_balance < 1
+    for: 5m
+    annotations:
+      title: 'low eth balance(<1)'
+      description: 'low eth balance'
+    labels:
+      severity: 'warning'
+  - alert: low_eth_balance
+    expr: eth_balance < 0.1
+    for: 5m
+    annotations:
+      title: 'very low eth balance(<0.1)'
+      description: 'low eth balance'
+    labels:
+      severity: 'critical'
+  - alert: chainlink_app_down
+    expr: sum(up{instance=~"(.*):6688"}) == 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: A chainlink app is down
+      description: A Prometheus target(chainlink app) has disappeared.

@@ -1,0 +1,7 @@
+#!/bin/bash
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+apt-get update
+apt-get install -y docker-ce
+docker run --name postgres --net=host -v /home/ubuntu/postgres-data:/var/lib/postgresql/data -e POSTGRES_DB=chainlinkdb \
+-e POSTGRES_USER=${db_username} -e POSTGRES_PASSWORD=${db_passwd} -d  postgres
