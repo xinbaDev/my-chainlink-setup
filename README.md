@@ -1,6 +1,6 @@
 # My chainlink setup
 
-My goal for this project is to create a secure, highly available, easy to setup/maintain and cost efficient setup. I hope it serves as a starting point for people who are new to chainlink to create their own setups. The project is currently in early development stage and not production ready yet, there are still many features/improvements I want to make and there might be bugs in code(hopefully not). You have been warned:).
+My goal for this project is to create a secure, highly available, easy to setup/maintain and cost efficient setup. I hope it serves as a starting point for people who are new to chainlink to create their own setups. The project is currently in early development stage and not production ready yet. There are still many features/improvements I want to make and there might be bugs in code(hopefully not). You have been warned:)
 
 ## My chainlink node infrastructure
 
@@ -13,19 +13,19 @@ This setup is built with the [Best Security and Operating Practices](https://doc
 
 * Monitoring
   - [x] Prometheus + Grafana for both application and infrastructure monitoring.
-  - [x] Alertmanger + Telegram for alarm notification.
+  - [x] Alertmanger + Telegram for alert notification.
   - [x] Cloudwatch for AWS RDS monitoring.
 
 * High availability
   - [x] At least two Chainlink nodes in different availability zones are running at any one time to ensure failover if one fails.
-  - [x] Running PostgreSql db by using aws rds, which offers auto failover, auto backup, and more.
+  - [x] Making use of AWS RDS which offers auto failover, auto backup, and more.
   - [x] Infrastructure as code(IaC).  It is relatively easy to run the whole infrastructure in another region at the same time, which further improve availability.
   - [ ] Set up a load balancer for Ethereum client (still working on it, I think it maybe deserves a separate project).
 
 * Cost efficient
-  - [x] All servers are launched in a region where the price is relatively cheap.
+  - [x] All servers are launched in a region where the hosting price is relatively cheap.
   - [x] Thanks to IaC, the whole infrastructure can be spinned up/teared down in minutes, which saves me time/money when testing.
-  - [x] Try to avoid using expensive tools/services(kubernetes/natgateway) to minimize infrastructure cost.
+  - [x] Avoid using expensive tools/services(kubernetes/natgateway) to minimize infrastructure cost(at least at the beginning).
 
 ## How to setup
 
@@ -42,7 +42,7 @@ This setup is built with the [Best Security and Operating Practices](https://doc
   AWS_ACCESS_KEY_ID=XXXXXXXXXXXXXXXXX
   AWS_SECRET_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   ```
-- use command ```aws configure``` to save the keys to your local machine.
+- Run command ```aws configure``` to save the keys to your local machine(Use the default region(us-east-1)).
 
 ### 2. Generate an aws ec2 keypair
 
@@ -58,6 +58,7 @@ This setup is built with the [Best Security and Operating Practices](https://doc
 - Add the server private key to the AWS SSM parameter: `/wireguard/wg-server-private-key`
     ```
     AWS_REGION=us-east-1
+    # replace the $ServerPrivateKeyValue with your own private key
     aws ssm put-parameter --region $AWS_REGION --name /wireguard/wg-server-private-key --type SecureString --value $ServerPrivateKeyValue
     ```
 - Replace the client public key in wg_client_public_keys map with your own key(in ```variables.tf```).
@@ -140,7 +141,11 @@ After connecting to your vpn server, you should be able to access the following 
   - prometheus: http://192.168.11.222:9090
   - alertmanager: http://192.168.11.222:9093
 
+## (optional) Test
+
+You can use [this script](https://github.com/xinbaDev/chainlink-starter#on-rinkeby-testnet) for testing.
 
 ## Clean up
 
 You can easily tear down the whole infrastructure by running ```terraform destroy```. But before that, don't forget to ***diconnect from your wireguard*** first, otherwise it will fail.
+
